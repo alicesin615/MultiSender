@@ -1,0 +1,28 @@
+{
+    "name": "multisender",
+    "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
+    "version": "1.0.0",
+    "main": "index.js",
+    "directories": {
+        "test": "test"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+        "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
+        "hardhat": "^2.19.4"
+    },
+    "scripts": {
+        "test": "mocha",
+        "compile": "npx hardhat compile"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alicesin615/multi-sender.git"
+    },
+    "author": "alicesin615",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/alicesin615/multi-sender/issues"
+    },
+    "homepage": "https://github.com/alicesin615/multi-sender#readme"
+}
