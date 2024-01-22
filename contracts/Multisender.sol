@@ -15,6 +15,11 @@ contract Multisender is Initializable {
         _;
     }
 
+    function sendEther(address payable receiverAddr, uint256 amount) private {
+        (bool sent, ) = receiverAddr.call{value: amount}("");
+        require(sent, "Failed to send Ether");
+    }
+
     function multiSendEther(
         address payable[] memory addresses,
         uint256[] memory amounts
