@@ -23,5 +23,11 @@ contract Multisender is Initializable {
             addresses.length != amounts.length,
             "Receipients' addresses length should match the amounts length"
         );
+
+        uint256 totalFundsAvailable = 0;
+        for (uint256 i = 0; i < amounts.length; i++) {
+            totalFundsAvailable += amounts[i];
+        }
+        require(msg.value >= totalFundsAvailable, "Insufficient funds.");
     }
 }
