@@ -14,4 +14,14 @@ contract Multisender is Initializable {
         require(msg.sender == owner, "Not authorized");
         _;
     }
+
+    function multiSendEther(
+        address payable[] memory addresses,
+        uint256[] memory amounts
+    ) public payable onlyOwner {
+        require(
+            addresses.length != amounts.length,
+            "Receipients' addresses length should match the amounts length"
+        );
+    }
 }
