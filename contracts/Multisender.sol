@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 pragma solidity ^0.8.20;
 
@@ -9,6 +10,8 @@ contract Multisender is Initializable {
     function initialize(address _owner) external initializer {
         owner = _owner;
     }
+
+    event MultisendToken(uint256 total, address tokenAddress);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not authorized");
@@ -29,10 +32,19 @@ contract Multisender is Initializable {
             "Receipients' addresses length should match the amounts length"
         );
 
-        uint256 totalFundsAvailable = 0;
+        uint256 totalAmountToBeSent = 0;
+        uint256 totalAmountSent = 0;
         for (uint256 i = 0; i < amounts.length; i++) {
-            totalFundsAvailable += amounts[i];
+            totalAmountToBeSent += amounts[i];
         }
-        require(msg.value >= totalFundsAvailable, "Insufficient funds.");
+        console.log("Total amount to be sent: %s", totalAmountToBeSent);
+        console.log("Available funds: %s", msg.value);
+        require(msg.value >= totalAmountToBeSent, "Insufficient funds.");
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            sendEther(addresses[i], amounts[i]);
+            totalAmountSent += amounts[i];
+        }
+        emit MultisendToken(totalAmountSent, address(0));
     }
 }
