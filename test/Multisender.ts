@@ -1,6 +1,6 @@
 import { ethers, upgrades } from 'hardhat';
 import { expect } from 'chai';
-import { BaseContract, ContractInterface } from 'ethers';
+import { BaseContract, BigNumberish, ContractInterface } from 'ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import type {
     HardhatEthersSigner,
@@ -12,6 +12,7 @@ describe('Multisender', function () {
         Omit<ContractInterface, keyof BaseContract>;
     let sender: HardhatEthersSigner;
     let recipients: SignerWithAddress[];
+    let remainingBalance: BigNumberish | null | undefined;
 
     async function deployFixture() {
         const MultisenderContract = await ethers.getContractFactory(
@@ -20,7 +21,7 @@ describe('Multisender', function () {
         [sender, ...recipients] = await ethers.getSigners();
         multisenderContract = await upgrades.deployProxy(
             MultisenderContract,
-            [sender.address],
+            [sender.address, ethers.parseEther('1000')],
             {
                 initializer: 'initialize'
             }
@@ -30,7 +31,6 @@ describe('Multisender', function () {
             'Multisender deployed to:',
             await multisenderContract.getAddress()
         );
-        console.log('Sender: ', sender.address);
         return {
             multisenderContract,
             sender,
@@ -44,6 +44,43 @@ describe('Multisender', function () {
         );
         expect(await multisenderContract.getOwner()).to.be.equal(
             sender.address
+        );
+    });
+
+    it('Should multisend ether to addresses respectively', async function () {
+        const { sender, recipients, multisenderContract } = await loadFixture(
+            deployFixture
+        );
+
+        const addresses: string[] = [
+            recipients[0].address,
+            recipients[1].address,
+            recipients[2].address,
+            recipients[3].address,
+            recipients[4].address
+        ];
+
+        const amounts = [
+            ethers.parseEther('10'),
+            ethers.parseEther('20'),
+            ethers.parseEther('30'),
+            ethers.parseEther('40'),
+            ethers.parseEther('50')
+        ];
+
+        remainingBalance = await multisenderContract.getRemainingBalance();
+
+        await multisenderContract.multiSendEther(addresses, amounts, {
+            value: remainingBalance
+        });
+
+        const balanceAddr1 = await (
+            await ethers.getSigner(addresses[0])
+        ).provider.getBalance(addresses[0]);
+
+        expect(
+            /* @ts-ignore */
+            await balanceAddr1.to.equal(amounts[0])
         );
     });
 });
