@@ -14,6 +14,8 @@ describe('Multisender', function () {
     let recipients: SignerWithAddress[];
     let remainingBalance: BigNumberish | null | undefined;
 
+    const initialTotalFunds = process.env.INITIAL_TOTAL_FUNDS || '0';
+
     async function deployFixture() {
         const MultisenderContract = await ethers.getContractFactory(
             'Multisender'
@@ -21,7 +23,7 @@ describe('Multisender', function () {
         [sender, ...recipients] = await ethers.getSigners();
         multisenderContract = await upgrades.deployProxy(
             MultisenderContract,
-            [sender.address, ethers.parseEther('1000')],
+            [sender.address, ethers.parseEther(initialTotalFunds)],
             {
                 initializer: 'initialize'
             }
@@ -31,6 +33,7 @@ describe('Multisender', function () {
             'Multisender deployed to:',
             await multisenderContract.getAddress()
         );
+        console.log('Sender: ', sender.address);
         return {
             multisenderContract,
             sender,
