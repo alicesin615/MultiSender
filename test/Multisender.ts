@@ -63,6 +63,14 @@ describe('Multisender', function () {
             recipients[4].address
         ];
 
+        const initialBalances = [
+            await ethers.provider.getBalance(addresses[0]),
+            await ethers.provider.getBalance(addresses[1]),
+            await ethers.provider.getBalance(addresses[2]),
+            await ethers.provider.getBalance(addresses[3]),
+            await ethers.provider.getBalance(addresses[4])
+        ];
+
         const amounts = [
             ethers.parseEther('10'),
             ethers.parseEther('20'),
@@ -77,13 +85,26 @@ describe('Multisender', function () {
             value: remainingBalance
         });
 
-        const balanceAddr1 = await (
-            await ethers.getSigner(addresses[0])
-        ).provider.getBalance(addresses[0]);
+        const diffInAddr1Balance =
+            (await ethers.provider.getBalance(addresses[0])) -
+            initialBalances[0];
+        const diffInAddr2Balance =
+            (await ethers.provider.getBalance(addresses[1])) -
+            initialBalances[0];
+        const diffInAddr3Balance =
+            (await ethers.provider.getBalance(addresses[2])) -
+            initialBalances[0];
+        const diffInAddr4Balance =
+            (await ethers.provider.getBalance(addresses[3])) -
+            initialBalances[0];
+        const diffInAddr5Balance =
+            (await ethers.provider.getBalance(addresses[4])) -
+            initialBalances[0];
 
-        expect(
-            /* @ts-ignore */
-            await balanceAddr1.to.equal(amounts[0])
-        );
+        expect(diffInAddr1Balance).to.equal(amounts[0]);
+        expect(diffInAddr2Balance).to.equal(amounts[1]);
+        expect(diffInAddr3Balance).to.equal(amounts[2]);
+        expect(diffInAddr4Balance).to.equal(amounts[3]);
+        expect(diffInAddr5Balance).to.equal(amounts[4]);
     });
 });
