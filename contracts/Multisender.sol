@@ -31,6 +31,19 @@ contract Multisender is Initializable {
         return remainingBalance;
     }
 
+    function setRemainingBalance(uint256 _remainingBalance) private onlyOwner {
+        console.log("Remaining funds: %s", _remainingBalance);
+        remainingBalance = _remainingBalance;
+    }
+
+    function checkEnoughFunds(
+        uint totalAmountToBeSent
+    ) private view returns (bool) {
+        bool hasEnoughFunds = remainingBalance >= totalAmountToBeSent;
+        require(hasEnoughFunds, "Insufficient funds");
+        return hasEnoughFunds;
+    }
+
     function sendEther(address payable receiverAddr, uint256 amount) private {
         (bool sent, ) = receiverAddr.call{value: amount}("");
         require(sent, "Failed to send Ether");
@@ -53,8 +66,9 @@ contract Multisender is Initializable {
             totalAmountToBeSent += amounts[i];
         }
         console.log("Total amount to be sent: %s", totalAmountToBeSent);
-        console.log("Available funds: %s", msg.value);
-        require(msg.value >= totalAmountToBeSent, "Insufficient funds.");
+        console.log("Available funds: %s", remainingBalance);
+
+        require(remainingBalance >= totalAmountToBeSent, "Insufficient funds.");
 
         for (uint256 i = 0; i < addresses.length; i++) {
             console.log("Sending %s to %s", amounts[i], addresses[i]);
@@ -63,8 +77,8 @@ contract Multisender is Initializable {
         }
         console.log("Total amount sent: %s", totalAmountSent);
 
-        remainingBalance = msg.value - totalAmountSent;
-        console.log("Remaining funds: %s", remainingBalance);
+        remainingBalance = remainingBalance - totalAmountSent;
+        setRemainingBalance(remainingBalance);
         emit MultisendToken(totalAmountSent, address(0));
     }
 }
