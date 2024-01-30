@@ -1,19 +1,10 @@
 {
     "name": "multisender",
-    "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
+    "description": "Bulk send Ethereum or ERC20 tokens to multiple addresses in one single transasction and save gas fees.",
     "version": "1.0.0",
     "main": "index.js",
     "directories": {
         "test": "test"
-    },
-    "devDependencies": {
-        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-        "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
-        "hardhat": "^2.19.4"
-    },
-    "scripts": {
-        "test": "mocha",
-        "compile": "npx hardhat compile"
     },
     "repository": {
         "type": "git",
@@ -24,5 +15,22 @@
     "bugs": {
         "url": "https://github.com/alicesin615/multi-sender/issues"
     },
-    "homepage": "https://github.com/alicesin615/multi-sender#readme"
+    "homepage": "https://github.com/alicesin615/multi-sender#readme",
+    "scripts": {
+        "test": "mocha test/Multisender.ts --reporter spec",
+        "compile": "npx hardhat compile"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^5.0.1",
+        "@openzeppelin/contracts-upgradeable": "^5.0.1",
+        "@openzeppelin/hardhat-upgrades": "^3.0.2",
+        "dotenv": "^16.4.1"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.5",
+        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+        "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
+        "ethers": "^6.10.0",
+        "hardhat": "^2.19.4"
+    }
 }
