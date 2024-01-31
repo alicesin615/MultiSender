@@ -27,7 +27,7 @@ contract Multisender is Initializable {
         return owner;
     }
 
-    function getRemainingBalance() public view returns (uint256) {
+    function getRemainingBalance() external view onlyOwner returns (uint256) {
         return remainingBalance;
     }
 
