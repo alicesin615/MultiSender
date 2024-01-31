@@ -7,9 +7,10 @@ import type {
     SignerWithAddress
 } from '@nomicfoundation/hardhat-ethers/signers';
 
+type MultisenderBaseContract = BaseContract &
+    Omit<ContractInterface, keyof BaseContract>;
 describe('Multisender', function () {
-    let multisenderContract: BaseContract &
-        Omit<ContractInterface, keyof BaseContract>;
+    let multisenderContract: MultisenderBaseContract;
     let nonOwnerContractInstance: BaseContract;
     let sender: HardhatEthersSigner;
     let recipients: SignerWithAddress[];
@@ -63,8 +64,7 @@ describe('Multisender', function () {
 
         expect(
             await (
-                nonOwnerContractInstance as BaseContract &
-                    Omit<ContractInterface, keyof BaseContract>
+                nonOwnerContractInstance as MultisenderBaseContract
             ).getRemainingBalance()
         ).to.be.rejected;
     });
