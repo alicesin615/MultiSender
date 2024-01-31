@@ -10,6 +10,7 @@ import type {
 describe('Multisender', function () {
     let multisenderContract: BaseContract &
         Omit<ContractInterface, keyof BaseContract>;
+    let nonOwnerContractInstance: BaseContract;
     let sender: HardhatEthersSigner;
     let recipients: SignerWithAddress[];
     let remainingBalance: BigNumberish | null | undefined;
@@ -48,6 +49,24 @@ describe('Multisender', function () {
         expect(await multisenderContract.getOwner()).to.be.equal(
             sender.address
         );
+    });
+
+    it("Should fail as remaining balance is only viewable by the contract's owner", async function () {
+        const { multisenderContract, sender, recipients } = await loadFixture(
+            deployFixture
+        );
+
+        const nonOwner = recipients[0];
+
+        // Switch to non-owner account
+        nonOwnerContractInstance = await multisenderContract.connect(nonOwner);
+
+        expect(
+            await (
+                nonOwnerContractInstance as BaseContract &
+                    Omit<ContractInterface, keyof BaseContract>
+            ).getRemainingBalance()
+        ).to.be.rejected;
     });
 
     it('Should multisend ether to addresses respectively', async function () {
