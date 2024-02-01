@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "hardhat/console.sol";
 
 pragma solidity ^0.8.20;
@@ -8,6 +9,10 @@ contract Multisender is Initializable {
     address private owner;
     uint256 private remainingBalance;
 
+    using SafeERC20 for IERC20;
+
+    event MultisendToken(uint256 total, address tokenAddress);
+
     function initialize(
         address _owner,
         uint256 _remainingBalance
@@ -15,8 +20,6 @@ contract Multisender is Initializable {
         owner = _owner;
         remainingBalance = _remainingBalance;
     }
-
-    event MultisendToken(uint256 total, address tokenAddress);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not authorized");
@@ -80,5 +83,25 @@ contract Multisender is Initializable {
         remainingBalance = remainingBalance - totalAmountSent;
         setRemainingBalance(remainingBalance);
         emit MultisendToken(totalAmountSent, address(0));
+    }
+
+    function multiSendFixedAmountERC20Token(
+        address payable[] memory addresses,
+        uint256 amount,
+        address erc20Token
+    ) public payable onlyOwner {
+        uint totalAmountToBeSent = addresses.length * amount;
+        uint256 totalAmountSent = 0;
+
+        require(checkEnoughFunds(totalAmountToBeSent), "Insufficient funds.");
+
+        IERC20 token = IERC20(erc20Token);
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            console.log("Sending %s to %s", amount, addresses[i]);
+            token.safeTransfer(addresses[i], amount);
+            totalAmountSent += amount;
+            emit MultisendToken(totalAmountSent, addresses[i]);
+        }
     }
 }
