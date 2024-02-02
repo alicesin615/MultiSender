@@ -10,5 +10,10 @@ contract MockUSDT is ERC20 {
     function mint(address to, uint256 amount) external {
         console.log("Minting %s tokens to the address %s", amount, to);
         _mint(to, amount);
+        console.log(
+            "Successfully minted %s tokens to the address %s",
+            amount,
+            to
+        );
     }
 }
