@@ -90,7 +90,7 @@ contract Multisender is Initializable {
         uint256 amount,
         address erc20Token
     ) public payable onlyOwner {
-        uint totalAmountToBeSent = addresses.length * amount;
+        uint256 totalAmountToBeSent = addresses.length * amount;
         uint256 totalAmountSent = 0;
 
         require(checkEnoughFunds(totalAmountToBeSent), "Insufficient funds.");
@@ -98,10 +98,16 @@ contract Multisender is Initializable {
         IERC20 token = IERC20(erc20Token);
 
         for (uint256 i = 0; i < addresses.length; i++) {
+            token.approve(msg.sender, amount);
             console.log("Sending %s to %s", amount, addresses[i]);
-            token.safeTransfer(addresses[i], amount);
+
+            token.transfer(addresses[i], amount);
             totalAmountSent += amount;
             emit MultisendToken(totalAmountSent, addresses[i]);
         }
+
+        console.log("Total amount sent: %s", totalAmountSent);
+        remainingBalance = remainingBalance - totalAmountSent;
+        setRemainingBalance(remainingBalance);
     }
 }
