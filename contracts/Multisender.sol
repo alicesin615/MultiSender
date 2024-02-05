@@ -98,13 +98,11 @@ contract Multisender is Initializable {
         IERC20 token = IERC20(erc20Token);
 
         for (uint256 i = 0; i < addresses.length; i++) {
-            token.approve(msg.sender, amount);
             console.log("Sending %s to %s", amount, addresses[i]);
-
-            token.transfer(addresses[i], amount);
+            token.transferFrom(msg.sender, addresses[i], amount);
             totalAmountSent += amount;
-            emit MultisendToken(totalAmountSent, addresses[i]);
         }
+        emit MultisendToken(totalAmountSent, address(0));
 
         console.log("Total amount sent: %s", totalAmountSent);
         remainingBalance = remainingBalance - totalAmountSent;
