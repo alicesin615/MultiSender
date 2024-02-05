@@ -17,6 +17,8 @@ describe('Multisender', function () {
     let remainingBalance: BigNumberish | null | undefined;
 
     const initialTotalFunds = process.env.INITIAL_TOTAL_FUNDS || '0';
+    const initialUsdtFunds = process.env.INITIAL_USDT_FUNDS || '0';
+    const usdtTotalSupply = process.env.USDT_TOTAL_SUPPLY || '0';
 
     async function deployFixture() {
         const MultisenderContract = await ethers.getContractFactory(
@@ -36,8 +38,13 @@ describe('Multisender', function () {
             await multisenderContract.getAddress()
         );
         console.log('Sender: ', sender.address);
+
+        const MockUSDTContract = await ethers.getContractFactory('MockUSDT');
+        const mockUSDTContract = await MockUSDTContract.deploy();
+
         return {
             multisenderContract,
+            mockUSDTContract,
             sender,
             recipients
         };
@@ -125,5 +132,38 @@ describe('Multisender', function () {
         expect(diffInAddr3Balance).to.equal(amounts[2]);
         expect(diffInAddr4Balance).to.equal(amounts[3]);
         expect(diffInAddr5Balance).to.equal(amounts[4]);
+    });
+
+    it('Should multisend same fixed amount of ERC20 token to all addresses', async function () {
+        const { recipients, sender, mockUSDTContract, multisenderContract } =
+            await loadFixture(deployFixture);
+        const addresses: string[] = [
+            recipients[0].address,
+            recipients[1].address
+        ];
+
+        const fixedAmountOfUsdtToSend = ethers.parseEther('20');
+
+        const usdtAddress = await mockUSDTContract.getAddress();
+        const multisenderContractAddress =
+            await multisenderContract.getAddress();
+
+        await mockUSDTContract.mint(
+            sender.getAddress(),
+            ethers.parseEther(initialUsdtFunds)
+        );
+
+        // approve the multisender contract to spend first before executing multisend
+        const approveTx = await mockUSDTContract.approve(
+            multisenderContractAddress,
+            ethers.parseEther(fixedAmountOfUsdtToSend.toString())
+        );
+        await approveTx.wait();
+
+        await multisenderContract.multiSendFixedAmountERC20Token(
+            addresses,
+            fixedAmountOfUsdtToSend,
+            usdtAddress
+        );
     });
 });
