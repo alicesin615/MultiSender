@@ -14,10 +14,10 @@ async function main() {
             initializer: 'initialize'
         }
     );
-    await multisenderContract.deployed();
+
     console.log(
-        'Multisender contract deployed to:',
-        multisenderContract.address
+        'Multisender contract proxy deployed to:',
+        await multisenderContract.getAddress()
     );
 }
 
