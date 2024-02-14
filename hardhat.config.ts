@@ -2,6 +2,7 @@ import { HardhatUserConfig } from 'hardhat/config';
 import 'dotenv/config';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-toolbox';
+import '@nomicfoundation/hardhat-verify';
 import '@openzeppelin/hardhat-upgrades';
 
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || '';
@@ -25,6 +26,9 @@ const config: HardhatUserConfig = {
     },
     etherscan: {
         apiKey: ETHERSCAN_API_KEY
+    },
+    sourcify: {
+        enabled: true
     }
 };
 
