@@ -6,9 +6,8 @@ import type {
     HardhatEthersSigner,
     SignerWithAddress
 } from '@nomicfoundation/hardhat-ethers/signers';
+import { MultisenderBaseContract } from '../models/contracts.model';
 
-type MultisenderBaseContract = BaseContract &
-    Omit<ContractInterface, keyof BaseContract>;
 describe('Multisender', function () {
     let multisenderContract: MultisenderBaseContract;
     let nonOwnerContractInstance: BaseContract;
