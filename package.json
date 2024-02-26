@@ -20,6 +20,7 @@
     },
     "homepage": "https://github.com/alicesin615/multi-sender#readme",
     "scripts": {
+        "console": "npx hardhat console --network sepolia",
         "test": "mocha test/Multisender.ts --reporter spec",
         "compile": "npx hardhat compile",
         "verify": "npx hardhat verify --network sepolia $npm_package_config_deployed_proxy_address",
