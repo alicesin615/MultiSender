@@ -22,13 +22,14 @@
     "scripts": {
         "console": "npx hardhat console --network sepolia",
         "test": "mocha test/Multisender.ts --reporter spec",
+        "test-v2": "npx hardhat test test/MultisenderV2.ts",
         "compile": "npx hardhat compile",
         "verify": "npx hardhat verify --network sepolia $npm_package_config_deployed_proxy_address",
         "deploy": "npx hardhat run scripts/deploy.ts --network sepolia"
     },
     "dependencies": {
         "@openzeppelin/contracts": "^5.0.1",
-        "@openzeppelin/contracts-upgradeable": "^5.0.1",
+        "@openzeppelin/contracts-upgradeable": "^5.0.2",
         "@openzeppelin/hardhat-upgrades": "^3.0.2",
         "dotenv": "^16.4.1"
     },
