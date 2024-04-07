@@ -11,7 +11,7 @@ import { MultisenderBaseContract } from '../models/contracts.model';
 describe('MultisenderV2', function () {
     let multisenderV1Contract: MultisenderBaseContract;
     let multisenderV2Contract: MultisenderBaseContract;
-    // let nonOwnerContractInstance: BaseContract;
+    let nonOwnerContractInstance: BaseContract;
     let sender: HardhatEthersSigner;
     let recipients: SignerWithAddress[];
     let remainingBalance: BigNumberish | null | undefined;
@@ -70,5 +70,25 @@ describe('MultisenderV2', function () {
         expect(await multisenderV2Contract.getOwner()).to.be.equal(
             sender.address
         );
+    });
+
+    it('Should fail as remaining balance is only viewable by owner', async function () {
+        const { multisenderV2Contract, recipients } = await loadFixture(
+            deployFixture
+        );
+        const nonOwner = recipients[0];
+        // Switch to non-owner account
+        nonOwnerContractInstance = await multisenderV2Contract.connect(
+            nonOwner
+        );
+        console.log(
+            'Non owner address: ',
+            await nonOwnerContractInstance.getAddress()
+        );
+        expect(
+            await (
+                nonOwnerContractInstance as MultisenderBaseContract
+            ).getRemainingBalance()
+        ).to.be.rejected;
     });
 });
