@@ -1,6 +1,6 @@
 import { ethers, upgrades } from 'hardhat';
 import { expect } from 'chai';
-import { BaseContract, BigNumberish } from 'ethers';
+import { BaseContract } from 'ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import type {
     HardhatEthersSigner,
@@ -14,7 +14,6 @@ describe('MultisenderV2', function () {
     let nonOwnerContractInstance: BaseContract;
     let sender: HardhatEthersSigner;
     let recipients: SignerWithAddress[];
-    let remainingBalance: BigNumberish | null | undefined;
 
     const initialTotalFunds = 1000;
 
@@ -82,13 +81,44 @@ describe('MultisenderV2', function () {
             nonOwner
         );
         console.log(
-            'Non owner address: ',
+            'Switched sender to non-owner of address: ',
             await nonOwnerContractInstance.getAddress()
         );
-        expect(
+
+        try {
             await (
                 nonOwnerContractInstance as MultisenderBaseContract
-            ).getRemainingBalance()
-        ).to.be.rejected;
+            ).getRemainingBalance();
+        } catch (err) {
+            expect((err as Error).message).to.include('Not authorized');
+        }
+    });
+
+    it('Should multisend varying amount of ether to all addresses', async function () {
+        const { recipients, sender, multisenderV2Contract } = await loadFixture(
+            deployFixture
+        );
+        const addresses: string[] = [
+            recipients[0].address,
+            recipients[1].address
+        ];
+
+        const amountsOfEtherToSend = [
+            ethers.parseEther('300'),
+            ethers.parseEther('300')
+        ];
+
+        const remainingBalance =
+            await multisenderV2Contract.getRemainingBalance();
+
+        console.log('Owner address: ', await multisenderV2Contract.getOwner());
+
+        await multisenderV2Contract.multiSendEther(
+            addresses,
+            amountsOfEtherToSend,
+            {
+                value: remainingBalance
+            }
+        );
     });
 });
