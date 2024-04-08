@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "hardhat/console.sol";
 
 pragma solidity ^0.8.20;
 
-contract MultisenderV2 is Initializable, ReentrancyGuard {
+contract MultisenderV2 is Initializable, ReentrancyGuardUpgradeable {
     address private owner;
     uint256 private remainingBalance;
 
@@ -35,16 +35,14 @@ contract MultisenderV2 is Initializable, ReentrancyGuard {
         return remainingBalance;
     }
 
-    function setRemainingBalance(uint256 _remainingBalance) private onlyOwner {
-        console.log("Remaining funds: %s", _remainingBalance);
-        remainingBalance = _remainingBalance;
-    }
-
     function checkEnoughFunds(
         uint totalAmountToBeSent
     ) private view returns (bool) {
         bool hasEnoughFunds = remainingBalance >= totalAmountToBeSent;
-        require(hasEnoughFunds, "Insufficient funds");
+        require(
+            hasEnoughFunds,
+            "Insufficient funds. Please deposit more funds to proceed."
+        );
         return hasEnoughFunds;
     }
 
@@ -53,37 +51,36 @@ contract MultisenderV2 is Initializable, ReentrancyGuard {
         require(sent, "Failed to send Ether");
     }
 
+    /// @dev This function is used to bulk send Ether to multiple addresses with reentrancy guard enabled
+    /// @param addresses The list of addresses to send Ether to
+    /// @param amounts The list of amounts to send
     function multiSendEther(
         address payable[] memory addresses,
         uint256[] memory amounts
     ) public payable nonReentrant onlyOwner {
         require(
             addresses.length == amounts.length,
-            "Recipients' addresses length should match the amounts length"
+            "Recipients' addresses length should match the amounts length."
         );
 
         uint256 totalAmountToBeSent = 0;
-        uint256 totalAmountSent = 0;
 
-        // total amount to be sent to recipients
         for (uint256 i = 0; i < amounts.length; i++) {
             totalAmountToBeSent += amounts[i];
         }
-        console.log("Total amount to be sent: %s", totalAmountToBeSent);
-        console.log("Available funds: %s", remainingBalance);
 
-        require(remainingBalance >= totalAmountToBeSent, "Insufficient funds.");
+        console.log("Current available funds: %s", remainingBalance);
+        console.log("Total amount to be sent: %s", totalAmountToBeSent);
+
+        checkEnoughFunds(totalAmountToBeSent);
 
         for (uint256 i = 0; i < addresses.length; i++) {
             console.log("Sending %s to %s", amounts[i], addresses[i]);
+            remainingBalance -= amounts[i];
             sendEther(addresses[i], amounts[i]);
-            totalAmountSent += amounts[i];
         }
-        console.log("Total amount sent: %s", totalAmountSent);
 
-        remainingBalance = remainingBalance - totalAmountSent;
-        setRemainingBalance(remainingBalance);
-        emit MultisendToken(totalAmountSent, address(0));
+        emit MultisendToken(remainingBalance, address(0));
     }
 
     function multiSendFixedAmountERC20Token(
@@ -107,7 +104,6 @@ contract MultisenderV2 is Initializable, ReentrancyGuard {
 
         console.log("Total amount sent: %s", totalAmountSent);
         remainingBalance = remainingBalance - totalAmountSent;
-        setRemainingBalance(remainingBalance);
         console.log("Final balance: %s", remainingBalance);
     }
 }
