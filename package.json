@@ -39,6 +39,6 @@
         "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
         "@nomicfoundation/hardhat-verify": "^2.0.4",
         "ethers": "^6.10.0",
-        "hardhat": "^2.19.4"
+        "hardhat": "^2.22.2"
     }
 }
