@@ -121,4 +121,40 @@ describe('MultisenderV2', function () {
             }
         );
     });
+
+    it('Should fail as Renentrancy attacker tries to execute multisend', async function () {
+        const { multisenderV2Contract, recipients } = await loadFixture(
+            deployFixture
+        );
+        const addresses: string[] = [
+            recipients[0].address,
+            recipients[1].address
+        ];
+
+        const amountsOfEtherToSend = [
+            ethers.parseEther('300'),
+            ethers.parseEther('300')
+        ];
+
+        const remainingBalance =
+            await multisenderV2Contract.getRemainingBalance();
+
+        const reentrancyAttacker = await ethers.deployContract(
+            'ReentrancyAttacker',
+            [
+                multisenderV2Contract.getAddress(),
+                addresses,
+                amountsOfEtherToSend
+            ],
+            {
+                value: remainingBalance
+            }
+        );
+
+        try {
+            await reentrancyAttacker.attack();
+        } catch (err) {
+            expect((err as Error).name).to.equal('Error');
+        }
+    });
 });
