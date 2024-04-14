@@ -1,5 +1,6 @@
 # MultiSender 
-Bulk send ethereum / ERC20 tokens in a single transaction on ethereum network.
+A smart contract enables users to bulk send ethereum / ERC20 tokens in a single transaction on ethereum network.
+Upgraded to v2 to minimize risks of reentrancy attacks by using Reentrancy guard & updating the state before making low-level calls.
 
 # Using CLI Tool
 
@@ -20,4 +21,11 @@ Run tests
 ```shell
 npm run test
 ```
+
+Deploy & Upgrade
+```shell
+npm run deploy
+npm run upgrade
+```
+
 
